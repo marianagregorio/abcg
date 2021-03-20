@@ -1,8 +1,8 @@
-#include "starlayers.hpp"
+#include "dots.hpp"
 
 #include <cppitertools/itertools.hpp>
 
-void StarLayers::initializeGL(GLuint program, int quantity) {
+void Dots::initializeGL(GLuint program, int quantity) {
   terminateGL();
 
   // Start pseudo-random number generator
@@ -18,14 +18,19 @@ void StarLayers::initializeGL(GLuint program, int quantity) {
   std::uniform_real_distribution<float> distIntensity(0.5f, 1.0f);
 
   for (auto &&[index, layer] : iter::enumerate(m_starLayers)) {
-    layer.m_pointSize = 10.0f / (1.0f + index);
+    layer.m_pointSize = 20.0f / (1.0f + index);
     layer.m_quantity = quantity * (static_cast<int>(index) + 1);
     layer.m_translation = glm::vec2(0);
 
     std::vector<glm::vec3> data(0);
     for ([[maybe_unused]] auto i : iter::range(0, layer.m_quantity)) {
-      data.emplace_back(distPos(re), distPos(re), 0);
-      data.push_back(glm::vec3(1) * distIntensity(re));
+      float x = distPos(re);
+      float y = distPos(re);
+      layer.m_positions.at(i) = glm::vec2{x, y};
+      // if (i % 2 == 0) {
+        data.emplace_back(x, y, 0);
+        data.push_back(glm::vec3(1));
+      // }
     }
 
     // Generate VBO
@@ -60,7 +65,7 @@ void StarLayers::initializeGL(GLuint program, int quantity) {
   }
 }
 
-void StarLayers::paintGL() {
+void Dots::paintGL() {
   glUseProgram(m_program);
 
   glEnable(GL_BLEND);
@@ -87,22 +92,22 @@ void StarLayers::paintGL() {
   glUseProgram(0);
 }
 
-void StarLayers::terminateGL() {
+void Dots::terminateGL() {
   for (auto &layer : m_starLayers) {
     glDeleteBuffers(1, &layer.m_vbo);
     glDeleteVertexArrays(1, &layer.m_vao);
   }
 }
 
-void StarLayers::update(const Ship &ship, float deltaTime) {
-  for (auto &&[index, layer] : iter::enumerate(m_starLayers)) {
-    auto layerSpeedScale{1.0f / (index + 2.0f)};
-    layer.m_translation -= ship.m_velocity * deltaTime * layerSpeedScale;
-
-    // Wrap-around
-    if (layer.m_translation.x < -1.0f) layer.m_translation.x += 2.0f;
-    if (layer.m_translation.x > +1.0f) layer.m_translation.x -= 2.0f;
-    if (layer.m_translation.y < -1.0f) layer.m_translation.y += 2.0f;
-    if (layer.m_translation.y > +1.0f) layer.m_translation.y -= 2.0f;
-  }
+void Dots::update(const GameData &gameData, float deltaTime) {
+  // std::vector<glm::vec3> data(0);
+  // for ([[maybe_unused]] auto i : iter::range(0, layer.m_quantity)) {
+  //   float x = distPos(re);
+  //   float y = distPos(re);
+  //   layer.m_positions.at(i) = glm::vec2{x, y};
+  //   if (i % 2 == 0) {
+  //     data.emplace_back(x, y, 0);
+  //     data.push_back(glm::vec3(1));
+  //   }
+  // }
 }

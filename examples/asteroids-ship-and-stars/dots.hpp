@@ -1,22 +1,21 @@
-#ifndef STARLAYERS_HPP_
-#define STARLAYERS_HPP_
+#ifndef DOTS_HPP_
+#define DOTS_HPP_
 
 #include <array>
 #include <random>
 
 #include "abcg.hpp"
 #include "gamedata.hpp"
-#include "ship.hpp"
 
 class OpenGLWindow;
 
-class StarLayers {
+class Dots {
  public:
   void initializeGL(GLuint program, int quantity);
   void paintGL();
   void terminateGL();
 
-  void update(const Ship &ship, float deltaTime);
+  void update(const GameData &gameData, float deltaTime);
 
  private:
   friend OpenGLWindow;
@@ -25,16 +24,19 @@ class StarLayers {
   GLint m_pointSizeLoc{};
   GLint m_translationLoc{};
 
-  struct StarLayer {
+  struct Dot {
     GLuint m_vao{};
     GLuint m_vbo{};
 
     float m_pointSize{};
     int m_quantity{};
+    std::array<glm::vec2, 10> m_positions{};
+    std::array<bool, 10> m_hit{};
+    std::array<glm::vec2, 10> m_timer{};
     glm::vec2 m_translation{glm::vec2(0)};
   };
 
-  std::array<StarLayer, 1> m_starLayers;
+  std::array<Dot, 1> m_starLayers;
 
   std::default_random_engine m_randomEngine;
 };

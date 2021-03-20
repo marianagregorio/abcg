@@ -1,16 +1,15 @@
-#ifndef STARLAYERS_HPP_
-#define STARLAYERS_HPP_
+#ifndef PLAYER_HPP_
+#define PLAYER_HPP_
 
 #include <array>
 #include <random>
 
 #include "abcg.hpp"
 #include "gamedata.hpp"
-#include "ship.hpp"
 
 class OpenGLWindow;
 
-class StarLayers {
+class PlayerLayer {
  public:
   void initializeGL(GLuint program, int quantity);
   void paintGL();
@@ -25,7 +24,7 @@ class StarLayers {
   GLint m_pointSizeLoc{};
   GLint m_translationLoc{};
 
-  struct StarLayer {
+  struct Player {
     GLuint m_vao{};
     GLuint m_vbo{};
 
@@ -34,7 +33,7 @@ class StarLayers {
     glm::vec2 m_translation{glm::vec2(0)};
   };
 
-  StarLayer m_layer;
+  Player m_player;
 
   std::default_random_engine m_randomEngine;
 };

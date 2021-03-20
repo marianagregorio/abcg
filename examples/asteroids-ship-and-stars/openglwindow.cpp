@@ -1,6 +1,9 @@
 #include "openglwindow.hpp"
 
+#include <fmt/core.h>
 #include <imgui.h>
+
+#include <cppitertools/itertools.hpp>
 
 #include "abcg.hpp"
 void OpenGLWindow::handleEvent(SDL_Event &event) {
@@ -50,7 +53,6 @@ void OpenGLWindow::handleEvent(SDL_Event &event) {
     glm::vec2 direction{glm::vec2{mousePosition.x - m_viewportWidth / 2,
                                   mousePosition.y - m_viewportHeight / 2}};
     direction.y = -direction.y;
-    m_ship.setRotation(std::atan2(direction.y, direction.x) - M_PI_2);
   }
 }
 
@@ -87,8 +89,9 @@ void OpenGLWindow::initializeGL() {
 void OpenGLWindow::restart() {
   m_gameData.m_state = State::Playing;
 
-  m_starLayers.initializeGL(m_starsProgram, 1);
-  // m_ship.initializeGL(m_objectsProgram);
+  m_dots.initializeGL(m_starsProgram, 10);
+  m_asteroids.initializeGL(m_objectsProgram, 3);
+  m_player.initializeGL(m_starsProgram, 1);
 }
 
 void OpenGLWindow::update() {
@@ -101,8 +104,14 @@ void OpenGLWindow::update() {
     return;
   }
 
-  m_ship.update(m_gameData, deltaTime);
-  m_starLayers.update(m_gameData, deltaTime);
+  m_dots.update(m_gameData, deltaTime);
+  m_player.update(m_gameData, deltaTime);
+  m_asteroids.update(deltaTime);
+
+  if (m_gameData.m_state == State::Playing) {
+    checkCollisions();
+    // checkWinCondition();
+  }
 }
 
 void OpenGLWindow::paintGL() {
@@ -111,8 +120,9 @@ void OpenGLWindow::paintGL() {
   glClear(GL_COLOR_BUFFER_BIT);
   glViewport(0, 0, m_viewportWidth, m_viewportHeight);
 
-  m_starLayers.paintGL();
-  // m_ship.paintGL(m_gameData);
+  // m_asteroids.paintGL();
+  m_dots.paintGL();
+  m_player.paintGL();
 }
 
 void OpenGLWindow::paintUI() {
@@ -120,12 +130,24 @@ void OpenGLWindow::paintUI() {
 
   {
     auto widgetSize{ImVec2(300, 85)};
-    ImGui::SetNextWindowPos(ImVec2((m_viewportWidth - widgetSize.x) / 2.0f,
-                                   (m_viewportHeight - widgetSize.y) / 2.0f));
+    ImGui::SetNextWindowPos(ImVec2(0, 0));
     ImGui::SetNextWindowSize(widgetSize);
     auto windowFlags{ImGuiWindowFlags_NoBackground |
                      ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoInputs};
     ImGui::Begin(" ", nullptr, windowFlags);
+    // ImGui::PushFont(m_font);
+    ImGui::Text("Score: %d", m_gameData.m_score);
+
+    // ImGui::PopFont();
+
+    ImGui::End();
+    ImGui::SetNextWindowPos(ImVec2((m_viewportWidth - widgetSize.x) / 2.0f,
+                                   (m_viewportHeight - widgetSize.y) / 2.0f));
+    ImGui::SetNextWindowSize(widgetSize);
+    // auto windowFlags{ImGuiWindowFlags_NoBackground |
+    //                  ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoInputs};
+    ImGui::Begin(" ", nullptr, windowFlags);
+    // ImGui::Text("Score: %d", m_gameData.m_score);
     ImGui::PushFont(m_font);
 
     if (m_gameData.m_state == State::GameOver) {
@@ -152,6 +174,62 @@ void OpenGLWindow::terminateGL() {
   glDeleteProgram(m_starsProgram);
   glDeleteProgram(m_objectsProgram);
 
-  m_ship.terminateGL();
-  m_starLayers.terminateGL();
+  m_asteroids.terminateGL();
+  m_dots.terminateGL();
+  m_player.terminateGL();
 }
+
+void OpenGLWindow::checkCollisions() {
+  // Check collision between ship and asteroids
+  for (auto &&[index, dot] :
+       iter::enumerate(m_dots.m_starLayers.at(0).m_positions)) {
+    auto dotTranslation{dot};
+    auto distance{
+        glm::distance(m_player.m_player.m_translation, dotTranslation)};
+
+    if (distance < 0.05 && m_dots.m_starLayers.at(0).m_hit.at(index) == false) {
+      m_gameData.m_score += 1;
+      m_dots.m_starLayers.at(0).m_hit.at(index) = true;
+      // fmt::print("Score: " + m_gameData.m_score);
+      // m_gameData.m_state = State::GameOver;
+      // m_restartWaitTimer.restart();
+    }
+  }
+
+  // Check collision between bullets and asteroids
+  // for (auto &bullet : m_bullets.m_bullets) {
+  //   if (bullet.m_dead) continue;
+
+  //   for (auto &asteroid : m_asteroids.m_asteroids) {
+  //     for (auto i : {-2, 0, 2}) {
+  //       for (auto j : {-2, 0, 2}) {
+  //         auto asteroidTranslation{asteroid.m_translation + glm::vec2(i, j)};
+  //         auto distance{
+  //             glm::distance(bullet.m_translation, asteroidTranslation)};
+
+  //         if (distance < m_bullets.m_scale + asteroid.m_scale * 0.85f) {
+  //           asteroid.m_hit = true;
+  //           bullet.m_dead = true;
+  //         }
+  //       }
+  //     }
+  //   }
+
+  //   m_asteroids.m_asteroids.remove_if(
+  //       [](const Asteroids::Asteroid &a) { return a.m_hit; });
+  // }
+}
+
+// void OpenGLWindow::checkCollisions() {
+//   // Check collision between ship and asteroids
+//   for (auto &asteroid : m_asteroids.m_asteroids) {
+//     auto asteroidTranslation{asteroid.m_translation};
+//     auto distance{glm::distance(m_player.m_player.m_translation,
+//     asteroidTranslation)};
+
+//     if (distance < asteroid.m_scale * 0.85f) {
+//       m_gameData.m_state = State::GameOver;
+//       m_restartWaitTimer.restart();
+//     }
+//   }
+// }
