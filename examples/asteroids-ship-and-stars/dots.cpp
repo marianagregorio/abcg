@@ -27,6 +27,7 @@ void Dots::initializeGL(GLuint program, int quantity) {
       float x = distPos(re);
       float y = distPos(re);
       layer.m_positions.at(i) = glm::vec2{x, y};
+      layer.m_hit.at(i) = 0;
       // if (i % 2 == 0) {
         data.emplace_back(x, y, 0);
         data.push_back(glm::vec3(1));

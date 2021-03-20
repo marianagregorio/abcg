@@ -32,6 +32,8 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   PlayerLayer m_player;
   Dots m_dots;
 
+  int m_lastHit = 11;
+
   abcg::ElapsedTimer m_restartWaitTimer;
 
   ImFont* m_font{};

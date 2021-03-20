@@ -31,7 +31,7 @@ class Dots {
     float m_pointSize{};
     int m_quantity{};
     std::array<glm::vec2, 10> m_positions{};
-    std::array<bool, 10> m_hit{};
+    std::array<int, 10> m_hit{};
     std::array<glm::vec2, 10> m_timer{};
     glm::vec2 m_translation{glm::vec2(0)};
   };

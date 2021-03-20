@@ -134,7 +134,7 @@ void OpenGLWindow::paintUI() {
     ImGui::SetNextWindowSize(widgetSize);
     auto windowFlags{ImGuiWindowFlags_NoBackground |
                      ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoInputs};
-    ImGui::Begin(" ", nullptr, windowFlags);
+    ImGui::Begin("score", nullptr, windowFlags);
     // ImGui::PushFont(m_font);
     ImGui::Text("Score: %d", m_gameData.m_score);
 
@@ -145,8 +145,9 @@ void OpenGLWindow::paintUI() {
                                    (m_viewportHeight - widgetSize.y) / 2.0f));
     ImGui::SetNextWindowSize(widgetSize);
     // auto windowFlags{ImGuiWindowFlags_NoBackground |
-    //                  ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoInputs};
-    ImGui::Begin(" ", nullptr, windowFlags);
+    //                  ImGuiWindowFlags_NoTitleBar |
+    //                  ImGuiWindowFlags_NoInputs};
+    ImGui::Begin("game_state", nullptr, windowFlags);
     // ImGui::Text("Score: %d", m_gameData.m_score);
     ImGui::PushFont(m_font);
 
@@ -187,12 +188,23 @@ void OpenGLWindow::checkCollisions() {
     auto distance{
         glm::distance(m_player.m_player.m_translation, dotTranslation)};
 
-    if (distance < 0.05 && m_dots.m_starLayers.at(0).m_hit.at(index) == false) {
-      m_gameData.m_score += 1;
-      m_dots.m_starLayers.at(0).m_hit.at(index) = true;
-      // fmt::print("Score: " + m_gameData.m_score);
-      // m_gameData.m_state = State::GameOver;
-      // m_restartWaitTimer.restart();
+    if (distance < 0.05) {
+      if (m_dots.m_starLayers.at(0).m_hit.at(index) == 0) {
+        m_gameData.m_score += 1;
+        m_dots.m_starLayers.at(0).m_hit.at(index) = 1;
+        if (m_gameData.m_score == m_dots.m_starLayers.at(0).m_hit.size()) {
+          m_gameData.m_score = 0;
+          m_gameData.m_state = State::Win;
+          m_restartWaitTimer.restart();
+        }
+      } else if (m_dots.m_starLayers.at(0).m_hit.at(index) == 2) {
+        // fmt::print("Score: " + m_gameData.m_score);
+        m_gameData.m_score = 0;
+        m_gameData.m_state = State::GameOver;
+        m_restartWaitTimer.restart();
+      }
+    } else if (m_dots.m_starLayers.at(0).m_hit.at(index) == 1) {
+      m_dots.m_starLayers.at(0).m_hit.at(index) = 2;
     }
   }
 
