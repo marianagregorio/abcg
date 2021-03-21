@@ -15,8 +15,6 @@ class Dots {
   void paintGL();
   void terminateGL();
 
-  void update(const GameData &gameData, float deltaTime);
-
  private:
   friend OpenGLWindow;
 

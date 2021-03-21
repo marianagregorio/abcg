@@ -28,10 +28,8 @@ void Dots::initializeGL(GLuint program, int quantity) {
       float y = distPos(re);
       layer.m_positions.at(i) = glm::vec2{x, y};
       layer.m_hit.at(i) = 0;
-      // if (i % 2 == 0) {
-        data.emplace_back(x, y, 0);
-        data.push_back(glm::vec3(1));
-      // }
+      data.emplace_back(x, y, 0);
+      data.push_back(glm::vec3(1));
     }
 
     // Generate VBO
@@ -98,17 +96,4 @@ void Dots::terminateGL() {
     glDeleteBuffers(1, &layer.m_vbo);
     glDeleteVertexArrays(1, &layer.m_vao);
   }
-}
-
-void Dots::update(const GameData &gameData, float deltaTime) {
-  // std::vector<glm::vec3> data(0);
-  // for ([[maybe_unused]] auto i : iter::range(0, layer.m_quantity)) {
-  //   float x = distPos(re);
-  //   float y = distPos(re);
-  //   layer.m_positions.at(i) = glm::vec2{x, y};
-  //   if (i % 2 == 0) {
-  //     data.emplace_back(x, y, 0);
-  //     data.push_back(glm::vec3(1));
-  //   }
-  // }
 }

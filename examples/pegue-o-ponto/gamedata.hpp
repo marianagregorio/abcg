@@ -8,7 +8,7 @@ enum class State { Playing, GameOver, Win };
 
 struct GameData {
   State m_state{State::Playing};
-  int m_score{0};
+  long unsigned int m_score{0};
   // pq m_input não é do tipo Input?
   std::bitset<5> m_input;  // [fire, up, down, left, right]
 };

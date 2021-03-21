@@ -8,7 +8,6 @@
 #include "abcg.hpp"
 #include "player.hpp"
 #include "dots.hpp"
-#include "asteroids.hpp"
 
 class OpenGLWindow : public abcg::OpenGLWindow {
  protected:
@@ -28,7 +27,6 @@ class OpenGLWindow : public abcg::OpenGLWindow {
 
   GameData m_gameData;
 
-  Asteroids m_asteroids;
   PlayerLayer m_player;
   Dots m_dots;
 

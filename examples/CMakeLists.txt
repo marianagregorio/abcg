@@ -7,4 +7,7 @@
 # add_subdirectory(asteroids)
 # add_subdirectory(_snake)
 # add_subdirectory(snake)
-add_subdirectory(asteroids-ship-and-stars)
+
+
+#--------------------------------------ATIVIDADE 01 ---------------------------------------------------------------
+add_subdirectory(pegue-o-ponto)
