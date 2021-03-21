@@ -145,9 +145,9 @@
 <body>
   <figure style="overflow:visible;" id="spinner">
     <div class="spinner"></div>
-    <center style="margin-top:0.5em"><strong>Hello, world!</strong></center>
+    <center style="margin-top:0.5em"><strong>Pegue o ponto!</strong></center>
   </figure>
-  <div class="emscripten" id="status">Downloading...</div>
+  <div class="emscripten" id="status">Mas não repita nenhum... O jogo está sendo carregado :)</div>
   <div class="emscripten">
     <progress value="50" max="100" id="progress" hidden=1></progress>
   </div>
@@ -238,10 +238,10 @@
       totalDependencies: 0,
       monitorRunDependencies: function (left) {
         this.totalDependencies = Math.max(this.totalDependencies, left);
-        Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+        Module.setStatus(left ? 'O jogo está sendo carregado :) (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')' : 'Download completo!');
       }
     };
-    Module.setStatus('Downloading...');
+    Module.setStatus('Não repita pontos...');
     window.onerror = function () {
       addErrorMessage('Exception thrown. See JavaScript console.');
       Module.setStatus('Exception thrown, see JavaScript console');

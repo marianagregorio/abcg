@@ -65,13 +65,9 @@ void OpenGLWindow::initializeGL() {
     throw abcg::Exception{abcg::Exception::Runtime("Cannot load font file")};
   }
 
-  // Create program to render the other objects
-  m_objectsProgram = createProgramFromFile(getAssetsPath() + "objects.vert",
-                                           getAssetsPath() + "objects.frag");
-
-  // Create program to render the stars
-  m_starsProgram = createProgramFromFile(getAssetsPath() + "stars.vert",
-                                         getAssetsPath() + "stars.frag");
+  // Create program to render the objects
+  m_program = createProgramFromFile(getAssetsPath() + "object.vert",
+                                         getAssetsPath() + "object.frag");
 
   glClearColor(0, 0, 0, 1);
 
@@ -89,8 +85,8 @@ void OpenGLWindow::initializeGL() {
 void OpenGLWindow::restart() {
   m_gameData.m_state = State::Playing;
 
-  m_dots.initializeGL(m_starsProgram, 10);
-  m_player.initializeGL(m_starsProgram, 1);
+  m_dots.initializeGL(m_program, 10);
+  m_player.initializeGL(m_program, 1);
 }
 
 void OpenGLWindow::update() {
@@ -167,8 +163,7 @@ void OpenGLWindow::resizeGL(int width, int height) {
 
 void OpenGLWindow::terminateGL() {
   // Release shader program, VBO and VAO
-  glDeleteProgram(m_starsProgram);
-  glDeleteProgram(m_objectsProgram);
+  glDeleteProgram(m_program);
 
   m_dots.terminateGL();
   m_player.terminateGL();

@@ -19,8 +19,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   void terminateGL() override;
 
  private:
-  GLuint m_starsProgram{};
-  GLuint m_objectsProgram{};
+  GLuint m_program{};
 
   int m_viewportWidth{};
   int m_viewportHeight{};
@@ -29,8 +28,6 @@ class OpenGLWindow : public abcg::OpenGLWindow {
 
   PlayerLayer m_player;
   Dots m_dots;
-
-  int m_lastHit = 11;
 
   abcg::ElapsedTimer m_restartWaitTimer;
 
