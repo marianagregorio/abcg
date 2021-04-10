@@ -13,4 +13,6 @@
 
 
 #--------------- modelos 3D ----------------------------
-add_subdirectory(loadmodel)
+# add_subdirectory(loadmodel)
+# add_subdirectory(lookat)
+add_subdirectory(viewer1)
