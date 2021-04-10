@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Pegue o ponto!</title>
+  <title>Modelos 3D</title>
   <style>
     body {
       font-family: arial;
@@ -145,9 +145,9 @@
 <body>
   <figure style="overflow:visible;" id="spinner">
     <div class="spinner"></div>
-    <center style="margin-top:0.5em"><strong>Pegue o ponto!</strong></center>
+    <center style="margin-top:0.5em"><strong>Modelos 3D!</strong></center>
   </figure>
-  <div class="emscripten" id="status">Mas não repita nenhum... O jogo está sendo carregado :)</div>
+  <div class="emscripten" id="status">Aplicação está sendo carregada :)</div>
   <div class="emscripten">
     <progress value="50" max="100" id="progress" hidden=1></progress>
   </div>
@@ -238,10 +238,10 @@
       totalDependencies: 0,
       monitorRunDependencies: function (left) {
         this.totalDependencies = Math.max(this.totalDependencies, left);
-        Module.setStatus(left ? 'O jogo está sendo carregado :) (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')' : 'Download completo!');
+        Module.setStatus(left ? 'Aplicação está sendo carregada :) (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')' : 'Download completo!');
       }
     };
-    Module.setStatus('Não repita pontos...');
+    Module.setStatus('Use o combo à direita para selecionar o modelo');
     window.onerror = function () {
       addErrorMessage('Exception thrown. See JavaScript console.');
       Module.setStatus('Exception thrown, see JavaScript console');
@@ -252,7 +252,7 @@
       };
     };
   </script>
-  <script async type="text/javascript" src="pegue-o-ponto.js"></script>
+  <script async type="text/javascript" src="viwer2.js"></script>
 </body>
 
 </html>

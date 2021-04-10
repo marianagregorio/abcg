@@ -1,20 +1,20 @@
-# Atividade 01 de Computação Gráfica
+# Atividade 02 de Computação Gráfica
 ## Desenvolvedora
 Nome: Mariana Gregorio Candido
 RA: 11035514
 
 ## Descrição
-Aplicação é um jogo simples, no qual jogador deve passar por todos os pontos na tela sem repetir nenhum, se movimentando com as setas do teclado ou as teclas w, a, s, d. Ganha se passar por todos os pontos, perde ao passar por algum repetido.
+Aplicação é uma visualização com trackball de diversos modelos 3D - há uma lista para selecioná-los.
 
 ## Código fonte
-Código da atividade está na pasta examples/pegue-o-ponto
+Código da atividade está na pasta examples/viewer2
 
 ## Compilando
 Para compilar (no linux) rode o comando:
 `` ./build.sh ``
 
 E para rodar o projeto compilado:
-`` ./build/bin/pegue-o-ponto/pegue-o-ponto ``
+`` ./build/bin/viewer2/viewer2 ``
 
 ## Acesso página web
 
