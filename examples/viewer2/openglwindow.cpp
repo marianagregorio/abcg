@@ -1,5 +1,6 @@
 #include "openglwindow.hpp"
 
+#include <gsl/gsl>
 #include <imgui.h>
 
 #include <cppitertools/itertools.hpp>
@@ -26,6 +27,13 @@ void OpenGLWindow::handleEvent(SDL_Event& event) {
 }
 
 void OpenGLWindow::initializeGL() {
+  ImGuiIO& io{ImGui::GetIO()};
+  auto filename{getAssetsPath() + "Inconsolata-Medium.ttf"};
+  m_font = io.Fonts->AddFontFromFileTTF(filename.c_str(), 36.0f);
+  if (m_font == nullptr) {
+    throw abcg::Exception{abcg::Exception::Runtime("Cannot load font file")};
+  }
+
   glClearColor(0, 80, 0, 1);
 
   // Enable depth buffering
@@ -66,7 +74,8 @@ void OpenGLWindow::paintGL() {
 
   // Set uniform variables of the current object
   glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &m_modelMatrix[0][0]);
-  glUniform4f(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f);  // White
+  glUniform4f(colorLoc, gsl::at(m_clearColor, 0), gsl::at(m_clearColor, 1),
+               gsl::at(m_clearColor, 2), gsl::at(m_clearColor, 3));
 
   m_model.render(m_trianglesToDraw);
 
@@ -96,26 +105,31 @@ void OpenGLWindow::paintUI() {
     ImGui::End();
   }
 
-  // Create a window for the other widgets
+  // Combo para selecionar modelo
   {
-    auto widgetSize{ImVec2(270, 40)};
+    auto widgetSize{ImVec2(340, 40)};
     ImGui::SetNextWindowPos(ImVec2(m_viewportWidth - widgetSize.x - 5, 5));
     ImGui::SetNextWindowSize(widgetSize);
     ImGui::Begin("Widget window", nullptr, ImGuiWindowFlags_NoDecoration);
     {
+      // Edit background color
       static std::size_t currentComboIndex{};
       bool indexChanged = false;
+      std::vector<std::string> comboObjectItemsLabel{
+          "Airplane",  "Bunny",  "Skull", "Box",   "Chamferbox", "Container",
+          "Geosphere", "Teapot", "Hand",  "T-Rex", "Sphere"};
       std::vector<std::string> comboObjectItems{
           "airplane.obj",   "bunny.obj",     "skull.obj",     "box.obj",
           "chamferbox.obj", "container.obj", "geosphere.obj", "teapot.obj",
           "hand.obj",       "trex.obj",      "sphere.obj"};
 
       ImGui::PushItemWidth(120);
-      if (ImGui::BeginCombo("Selecionar Modelo",
-                            comboObjectItems.at(currentComboIndex).c_str())) {
-        for (auto index : iter::range(comboObjectItems.size())) {
+      if (ImGui::BeginCombo(
+              "Selecionar Modelo",
+              comboObjectItemsLabel.at(currentComboIndex).c_str())) {
+        for (auto index : iter::range(comboObjectItemsLabel.size())) {
           const bool isSelected{currentComboIndex == index};
-          if (ImGui::Selectable(comboObjectItems.at(index).c_str(),
+          if (ImGui::Selectable(comboObjectItemsLabel.at(index).c_str(),
                                 isSelected)) {
             indexChanged = index != currentComboIndex;
             currentComboIndex = index;
@@ -135,10 +149,31 @@ void OpenGLWindow::paintUI() {
         m_trianglesToDraw = m_model.getNumTriangles();
         m_model.render(m_trianglesToDraw);
       }
-      glFrontFace(GL_CW);
       m_projMatrix = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.1f, 5.0f);
     }
 
+    ImGui::End();
+
+    // Seleção da cor do modelo
+    ImGui::SetNextWindowPos(ImVec2((m_viewportWidth - 345), 50));
+    ImGui::SetNextWindowSize(ImVec2(340, 40));
+    ImGui::Begin("Color edit", nullptr, {ImGuiWindowFlags_NoDecoration});
+    ImGui::ColorEdit3("Cor do objeto", m_clearColor.data());
+    ImGui::End();
+
+    // Aviso sobre triângulos zerados
+    ImGui::SetNextWindowPos(
+        ImVec2((m_viewportWidth - 400) / 2, (m_viewportHeight - 85) / 2));
+    ImGui::SetNextWindowSize(ImVec2(400, 85));
+    auto windowFlags{ImGuiWindowFlags_NoBackground |
+                     ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoInputs};
+    ImGui::Begin("triangles", nullptr, windowFlags);
+    ImGui::PushFont(m_font);
+
+    if (m_trianglesToDraw == 0) {
+      ImGui::Text("No more triangles!");
+    }
+    ImGui::PopFont();
     ImGui::End();
   }
 }
