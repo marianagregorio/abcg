@@ -16,6 +16,10 @@ Para compilar (no linux) rode o comando:
 E para rodar o projeto compilado:
 `` ./build/bin/viewer2/viewer2 ``
 
+Para gerar página em web assembly:
+`` ./build-wasm.sh ``
+E acesse a página index.html gerada na raiz em um navegador.
+
 ## Acesso página web
 
 O projeto está publicado em https://marianagregorio.github.io/abcg/
