@@ -98,28 +98,20 @@ void OpenGLWindow::paintUI() {
 
   // Create a window for the other widgets
   {
-    auto widgetSize{ImVec2(222, 90)};
+    auto widgetSize{ImVec2(270, 40)};
     ImGui::SetNextWindowPos(ImVec2(m_viewportWidth - widgetSize.x - 5, 5));
     ImGui::SetNextWindowSize(widgetSize);
     ImGui::Begin("Widget window", nullptr, ImGuiWindowFlags_NoDecoration);
-
-    static bool faceCulling{};
-    ImGui::Checkbox("Back-face culling", &faceCulling);
-
-    if (faceCulling) {
-      glEnable(GL_CULL_FACE);
-    } else {
-      glDisable(GL_CULL_FACE);
-    }
     {
       static std::size_t currentComboIndex{};
       bool indexChanged = false;
       std::vector<std::string> comboObjectItems{
-          "bunny.obj",     "skull.obj",   "box.obj",   "chamferbox.obj",
-          "geosphere.obj", "cottage.obj", "teapot.obj", "hand.obj"};
+          "airplane.obj",   "bunny.obj",     "skull.obj",     "box.obj",
+          "chamferbox.obj", "container.obj", "geosphere.obj", "teapot.obj",
+          "hand.obj",       "trex.obj",      "sphere.obj"};
 
       ImGui::PushItemWidth(120);
-      if (ImGui::BeginCombo("Object",
+      if (ImGui::BeginCombo("Selecionar Modelo",
                             comboObjectItems.at(currentComboIndex).c_str())) {
         for (auto index : iter::range(comboObjectItems.size())) {
           const bool isSelected{currentComboIndex == index};
@@ -127,6 +119,7 @@ void OpenGLWindow::paintUI() {
                                 isSelected)) {
             indexChanged = index != currentComboIndex;
             currentComboIndex = index;
+            m_fileName = comboObjectItems.at(index);
           }
           if (isSelected) ImGui::SetItemDefaultFocus();
         }
@@ -135,68 +128,15 @@ void OpenGLWindow::paintUI() {
       ImGui::PopItemWidth();
 
       if (indexChanged) {
-        m_model.loadFromFile(getAssetsPath() +
-                             comboObjectItems.at(currentComboIndex));
+        m_model.loadFromFile(getAssetsPath() + m_fileName);
 
         m_model.setupVAO(m_program);
 
         m_trianglesToDraw = m_model.getNumTriangles();
         m_model.render(m_trianglesToDraw);
       }
-    }
-
-    // CW/CCW combo box
-    {
-      // static std::size_t currentIndex{};
-      // std::vector<std::string> comboItems{"CCW", "CW"};
-
-      // ImGui::PushItemWidth(120);
-      // if (ImGui::BeginCombo("Front face",
-      //                       comboItems.at(currentIndex).c_str())) {
-      //   for (auto index : iter::range(comboItems.size())) {
-      //     const bool isSelected{currentIndex == index};
-      //     if (ImGui::Selectable(comboItems.at(index).c_str(), isSelected))
-      //       currentIndex = index;
-      //     if (isSelected) ImGui::SetItemDefaultFocus();
-      //   }
-      //   ImGui::EndCombo();
-      // }
-      // ImGui::PopItemWidth();
-
-      // if (currentIndex == 0) {
-      //   glFrontFace(GL_CCW);
-      // } else {
       glFrontFace(GL_CW);
-      // }
-    }
-
-    // Projection combo box
-    {
-      // static std::size_t currentIndex{};
-      // std::vector<std::string> comboItems{"Perspective", "Orthographic"};
-
-      // ImGui::PushItemWidth(120);
-      // if (ImGui::BeginCombo("Projection",
-      //                       comboItems.at(currentIndex).c_str())) {
-      //   for (auto index : iter::range(comboItems.size())) {
-      //     const bool isSelected{currentIndex == index};
-      //     if (ImGui::Selectable(comboItems.at(index).c_str(), isSelected))
-      //       currentIndex = index;
-      //     if (isSelected) ImGui::SetItemDefaultFocus();
-      //   }
-      //   ImGui::EndCombo();
-      // }
-      // ImGui::PopItemWidth();
-
-      // if (currentIndex == 0) {
-      //   auto aspect{static_cast<float>(m_viewportWidth) /
-      //               static_cast<float>(m_viewportHeight)};
-      //   m_projMatrix =
-      //       glm::perspective(glm::radians(45.0f), aspect, 0.1f, 5.0f);
-
-      // } else {
       m_projMatrix = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.1f, 5.0f);
-      // }
     }
 
     ImGui::End();

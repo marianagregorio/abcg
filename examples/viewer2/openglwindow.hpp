@@ -22,7 +22,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   int m_viewportHeight{};
 
   Model m_model;
-  char* m_fileName = "bunny.obj";
+  std::string m_fileName = "airplane.obj";
   int m_trianglesToDraw{};
 
   TrackBall m_trackBall;
