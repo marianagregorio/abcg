@@ -4,7 +4,7 @@ Nome: Mariana Gregorio Candido
 RA: 11035514
 
 ## Descrição
-Aplicação é uma visualização com trackball de diversos modelos 3D - há uma lista para selecioná-los.
+Aplicação é uma visualização com trackball de diversos modelos 3D - há uma lista para selecioná-los e os objetos vão perdendo triângulos com o passar do tempo. Também é possível editar a cor do objeto.
 
 ## Código fonte
 Código da atividade está na pasta examples/viewer2

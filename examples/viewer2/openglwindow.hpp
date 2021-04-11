@@ -27,10 +27,13 @@ class OpenGLWindow : public abcg::OpenGLWindow {
 
   Model m_model;
   std::string m_fileName = "airplane.obj";
+  std::string m_objectName = "Airplane";
   int m_trianglesToDraw{};
 
   TrackBall m_trackBall;
   float m_zoom{};
+
+  abcg::ElapsedTimer m_restartWaitTimer;
 
   glm::mat4 m_modelMatrix{1.0f};
   glm::mat4 m_viewMatrix{1.0f};

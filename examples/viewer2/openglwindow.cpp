@@ -1,9 +1,9 @@
 #include "openglwindow.hpp"
 
-#include <gsl/gsl>
 #include <imgui.h>
 
 #include <cppitertools/itertools.hpp>
+#include <gsl/gsl>
 
 void OpenGLWindow::handleEvent(SDL_Event& event) {
   glm::ivec2 mousePosition;
@@ -75,7 +75,7 @@ void OpenGLWindow::paintGL() {
   // Set uniform variables of the current object
   glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &m_modelMatrix[0][0]);
   glUniform4f(colorLoc, gsl::at(m_clearColor, 0), gsl::at(m_clearColor, 1),
-               gsl::at(m_clearColor, 2), gsl::at(m_clearColor, 3));
+              gsl::at(m_clearColor, 2), gsl::at(m_clearColor, 3));
 
   m_model.render(m_trianglesToDraw);
 
@@ -134,6 +134,7 @@ void OpenGLWindow::paintUI() {
             indexChanged = index != currentComboIndex;
             currentComboIndex = index;
             m_fileName = comboObjectItems.at(index);
+            m_objectName = comboObjectItemsLabel.at(index);
           }
           if (isSelected) ImGui::SetItemDefaultFocus();
         }
@@ -142,6 +143,7 @@ void OpenGLWindow::paintUI() {
       ImGui::PopItemWidth();
 
       if (indexChanged) {
+        m_restartWaitTimer.restart();
         m_model.loadFromFile(getAssetsPath() + m_fileName);
 
         m_model.setupVAO(m_program);
@@ -157,21 +159,21 @@ void OpenGLWindow::paintUI() {
     // Seleção da cor do modelo
     ImGui::SetNextWindowPos(ImVec2((m_viewportWidth - 345), 50));
     ImGui::SetNextWindowSize(ImVec2(340, 40));
-    ImGui::Begin("Color edit", nullptr, {ImGuiWindowFlags_NoDecoration});
+    ImGui::Begin("Color edit", nullptr, ImGuiWindowFlags_NoDecoration);
     ImGui::ColorEdit3("Cor do objeto", m_clearColor.data());
     ImGui::End();
 
     // Aviso sobre triângulos zerados
     ImGui::SetNextWindowPos(
-        ImVec2((m_viewportWidth - 400) / 2, (m_viewportHeight - 85) / 2));
-    ImGui::SetNextWindowSize(ImVec2(400, 85));
+        ImVec2((m_viewportWidth - 450) / 2, (m_viewportHeight - 85) / 2));
+    ImGui::SetNextWindowSize(ImVec2(450, 85));
     auto windowFlags{ImGuiWindowFlags_NoBackground |
                      ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoInputs};
     ImGui::Begin("triangles", nullptr, windowFlags);
     ImGui::PushFont(m_font);
 
     if (m_trianglesToDraw == 0) {
-      ImGui::Text("No more triangles!");
+      ImGui::Text("%s has vanished!", m_objectName.c_str());
     }
     ImGui::PopFont();
     ImGui::End();
@@ -188,6 +190,14 @@ void OpenGLWindow::resizeGL(int width, int height) {
 void OpenGLWindow::terminateGL() { glDeleteProgram(m_program); }
 
 void OpenGLWindow::update() {
+  if (m_restartWaitTimer.elapsed() > 0.1 && m_trianglesToDraw > 0) {
+    if (m_trianglesToDraw > m_model.getNumTriangles() * 0.01) {
+      m_trianglesToDraw -= m_model.getNumTriangles() * 0.01;
+    } else {
+      m_trianglesToDraw = 0;
+    }
+    m_restartWaitTimer.restart();
+  }
   m_modelMatrix = m_trackBall.getRotation();
 
   m_viewMatrix =
