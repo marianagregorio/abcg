@@ -14,8 +14,15 @@
 
 #--------------- modelos 3D ----------------------------
 # add_subdirectory(loadmodel)
-# add_subdirectory(lookat)
+add_subdirectory(lookat)
 # add_subdirectory(viewer1)
 
 #-------------------------------------ATIVIDADE 02 ----------------------------------------------------------------
-add_subdirectory(viewer2)
+# add_subdirectory(viewer2)
+
+#------------------------- modelos 3D com iluminação/texturas ------------------------------------------------------
+# add_subdirectory(viewer3)
+# add_subdirectory(viewer4)
+# add_subdirectory(viewer5)
+# add_subdirectory(viewer6)
+# add_subdirectory(viewer7)
