@@ -25,25 +25,18 @@ class OpenGLWindow : public abcg::OpenGLWindow {
  private:
   GLuint m_programBunny{};
 
-  GLuint m_VAOTeapot{};
-  GLuint m_VBOTeapot{};
-  GLuint m_EBOTeapot{};
-  GLuint m_programTeapot{};
-
   int m_viewportWidth{};
   int m_viewportHeight{};
 
   Model m_model;
+  Model m_modelTeapot;
+  Model m_modelTRex;
 
   Camera m_camera;
   float m_dollySpeed{0.0f};
   float m_truckSpeed{0.0f};
   float m_panSpeed{0.0f};
 
-  std::vector<Vertex> m_verticesTeapot;
-  std::vector<GLuint> m_indicesTeapot;
-
-  void loadTeapotModelFromFile(std::string_view path);
   void update();
 };
 
