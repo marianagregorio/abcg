@@ -62,7 +62,7 @@ void OpenGLWindow::initializeGL() {
                                     getAssetsPath() + "lookat.frag");
 
   // Load model
-  loadModelFromFile(getAssetsPath() + "bunny.obj");
+  loadModelFromFile(getAssetsPath() + "teapot.obj");
 
   // Generate VBO
   glGenBuffers(1, &m_VBO);
