@@ -2,15 +2,16 @@
 #define OPENGLWINDOW_HPP_
 
 #include "abcg.hpp"
+#include "model.hpp"
 #include "camera.hpp"
 
-struct Vertex {
-  glm::vec3 position;
+// struct Vertex {
+//   glm::vec3 position;
 
-  bool operator==(const Vertex& other) const {
-    return position == other.position;
-  }
-};
+//   bool operator==(const Vertex& other) const {
+//     return position == other.position;
+//   }
+// };
 
 class OpenGLWindow : public abcg::OpenGLWindow {
  protected:
@@ -22,9 +23,6 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   void terminateGL() override;
 
  private:
-  GLuint m_VAOBunny{};
-  GLuint m_VBOBunny{};
-  GLuint m_EBOBunny{};
   GLuint m_programBunny{};
 
   GLuint m_VAOTeapot{};
@@ -35,18 +33,16 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   int m_viewportWidth{};
   int m_viewportHeight{};
 
+  Model m_model;
+
   Camera m_camera;
   float m_dollySpeed{0.0f};
   float m_truckSpeed{0.0f};
   float m_panSpeed{0.0f};
 
-  std::vector<Vertex> m_verticesBunny;
-  std::vector<GLuint> m_indicesBunny;
-
   std::vector<Vertex> m_verticesTeapot;
   std::vector<GLuint> m_indicesTeapot;
 
-  void loadBunnyModelFromFile(std::string_view path);
   void loadTeapotModelFromFile(std::string_view path);
   void update();
 };

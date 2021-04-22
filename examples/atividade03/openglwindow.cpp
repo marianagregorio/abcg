@@ -66,29 +66,16 @@ void OpenGLWindow::initializeGL() {
                                     getAssetsPath() + "lookat.frag");
 
   // Load model
-  loadBunnyModelFromFile(getAssetsPath() + "bunny.obj");
   loadTeapotModelFromFile(getAssetsPath() + "teapot.obj");
 
-  // Generate VBO
-  glGenBuffers(1, &m_VBOBunny);
-  glBindBuffer(GL_ARRAY_BUFFER, m_VBOBunny);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(m_verticesBunny[0]) * m_verticesBunny.size(),
-               m_verticesBunny.data(), GL_STATIC_DRAW);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-
+  m_model.loadFromFile(getAssetsPath() + "bunny.obj");
+  m_model.setupVAO(m_programBunny);
 
   glGenBuffers(1, &m_VBOTeapot);
   glBindBuffer(GL_ARRAY_BUFFER, m_VBOTeapot);
   glBufferData(GL_ARRAY_BUFFER, sizeof(m_verticesTeapot[0]) * m_verticesTeapot.size(),
                m_verticesTeapot.data(), GL_STATIC_DRAW);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-  // Generate EBO
-  glGenBuffers(1, &m_EBOBunny);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBOBunny);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(m_indicesBunny[0]) * m_indicesBunny.size(),
-               m_indicesBunny.data(), GL_STATIC_DRAW);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
   glGenBuffers(1, &m_EBOTeapot);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBOTeapot);
@@ -97,23 +84,7 @@ void OpenGLWindow::initializeGL() {
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
   // Create VAO
-  glGenVertexArrays(1, &m_VAOBunny);
   glGenVertexArrays(1, &m_VAOTeapot);
-
-  // Bind vertex attributes to current VAO
-  glBindVertexArray(m_VAOBunny);
-
-  glBindBuffer(GL_ARRAY_BUFFER, m_VBOBunny);
-  GLint positionAttribute{glGetAttribLocation(m_programBunny, "inPosition")};
-  glEnableVertexAttribArray(positionAttribute);
-  glVertexAttribPointer(positionAttribute, 3, GL_FLOAT, GL_FALSE,
-                        sizeof(Vertex), nullptr);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBOBunny);
-
-  // End of binding to current VAO
-  glBindVertexArray(0);
 
     // Bind vertex attributes to current VAO
   glBindVertexArray(m_VAOTeapot);
@@ -131,73 +102,6 @@ void OpenGLWindow::initializeGL() {
   glBindVertexArray(0);
 
   resizeGL(getWindowSettings().width, getWindowSettings().height);
-}
-
-void OpenGLWindow::loadBunnyModelFromFile(std::string_view path) {
-  tinyobj::ObjReaderConfig readerConfig;
-  readerConfig.mtl_search_path =
-      getAssetsPath() + "mtl/";  // Path to material files
-
-  tinyobj::ObjReader reader;
-
-  if (!reader.ParseFromFile(path.data(), readerConfig)) {
-    if (!reader.Error().empty()) {
-      throw abcg::Exception{abcg::Exception::Runtime(
-          fmt::format("Failed to load model {} ({})", path, reader.Error()))};
-    }
-    throw abcg::Exception{
-        abcg::Exception::Runtime(fmt::format("Failed to load model {}", path))};
-  }
-
-  if (!reader.Warning().empty()) {
-    fmt::print("Warning: {}\n", reader.Warning());
-  }
-
-  const auto& attrib{reader.GetAttrib()};
-  const auto& shapes{reader.GetShapes()};
-
-  m_verticesBunny.clear();
-  m_indicesBunny.clear();
-
-  // A key:value map with key=Vertex and value=index
-  std::unordered_map<Vertex, GLuint> hash{};
-
-  // Loop over shapes
-  for (const auto& shape : shapes) {
-    // Loop over faces(polygon)
-    size_t indexOffset{0};
-    for (const auto faceNumber :
-         iter::range(shape.mesh.num_face_vertices.size())) {
-      // Number of vertices composing face f
-      std::size_t numFaceVertices{shape.mesh.num_face_vertices[faceNumber]};
-      // Loop over vertices in the face
-      std::size_t startIndex{};
-      for (const auto vertexNumber : iter::range(numFaceVertices)) {
-        // Access to vertex
-        tinyobj::index_t index{shape.mesh.indices[indexOffset + vertexNumber]};
-
-        // Vertex coordinates
-        startIndex = 3 * index.vertex_index;
-        tinyobj::real_t vx = attrib.vertices[startIndex + 0];
-        tinyobj::real_t vy = attrib.vertices[startIndex + 1];
-        tinyobj::real_t vz = attrib.vertices[startIndex + 2];
-
-        Vertex vertex{};
-        vertex.position = {vx, vy, vz};
-
-        // If hash doesn't contain this vertex
-        if (hash.count(vertex) == 0) {
-          // Add this index (size of vertices)
-          hash[vertex] = m_verticesBunny.size();
-          // Add this vertex
-          m_verticesBunny.push_back(vertex);
-        }
-
-        m_indicesBunny.push_back(hash[vertex]);
-      }
-      indexOffset += numFaceVertices;
-    }
-  }
 }
 
 void OpenGLWindow::loadTeapotModelFromFile(std::string_view path) {
@@ -276,7 +180,6 @@ void OpenGLWindow::paintGL() {
   glViewport(0, 0, m_viewportWidth, m_viewportHeight);
 
   glUseProgram(m_programBunny);
-  glBindVertexArray(m_VAOBunny);
 
   // Get location of uniform variables (could be precomputed)
   GLint viewMatrixLoc{glGetUniformLocation(m_programBunny, "viewMatrix")};
@@ -297,26 +200,17 @@ void OpenGLWindow::paintGL() {
 
   glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
   glUniform4f(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f);
-  glDrawElements(GL_TRIANGLES, m_indicesBunny.size(), GL_UNSIGNED_INT, nullptr);
 
-  // Draw yellow bunny
+  m_model.render(-1);
+
+  // // Draw yellow bunny
   model = glm::mat4(1.0);
   model = glm::translate(model, glm::vec3(0.0f, 0.0f, -1.0f));
   model = glm::scale(model, glm::vec3(1.0f));
 
   glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
   glUniform4f(colorLoc, 1.0f, 0.5f, 0.0f, 1.0f);
-  glDrawElements(GL_TRIANGLES, m_indicesBunny.size(), GL_UNSIGNED_INT, nullptr);
-
-  // Draw blue bunny
-  // model = glm::mat4(1.0);
-  // model = glm::translate(model, glm::vec3(1.0f, 0.0f, 0.0f));
-  // model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0, 1, 0));
-  // model = glm::scale(model, glm::vec3(0.5f));
-
-  // glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
-  // glUniform4f(colorLoc, 0.0f, 0.8f, 1.0f, 1.0f);
-  // glDrawElements(GL_TRIANGLES, m_indicesBunny.size(), GL_UNSIGNED_INT, nullptr);
+  m_model.render(-1);
 
   // Draw extra bunny
   model = glm::mat4(1.0);
@@ -326,7 +220,7 @@ void OpenGLWindow::paintGL() {
 
   glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
   glUniform4f(colorLoc, 0.0f, 1.0f, 0.0f, 1.0f);
-  glDrawElements(GL_TRIANGLES, m_indicesBunny.size(), GL_UNSIGNED_INT, nullptr);
+  m_model.render(-1);
 
   // Draw red bunny
   model = glm::mat4(1.0);
@@ -335,9 +229,9 @@ void OpenGLWindow::paintGL() {
 
   glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
   glUniform4f(colorLoc, 1.0f, 0.25f, 0.25f, 1.0f);
-  glDrawElements(GL_TRIANGLES, m_indicesBunny.size(), GL_UNSIGNED_INT, nullptr);
 
-  glBindVertexArray(0);
+  m_model.render(-1);
+
   glUseProgram(0);
 
   // changes to teapot program
@@ -396,7 +290,4 @@ void OpenGLWindow::resizeGL(int width, int height) {
 
 void OpenGLWindow::terminateGL() {
   glDeleteProgram(m_programBunny);
-  glDeleteBuffers(1, &m_EBOBunny);
-  glDeleteBuffers(1, &m_VBOBunny);
-  glDeleteVertexArrays(1, &m_VAOBunny);
 }
