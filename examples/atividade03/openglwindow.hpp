@@ -2,8 +2,8 @@
 #define OPENGLWINDOW_HPP_
 
 #include "abcg.hpp"
-#include "model.hpp"
 #include "camera.hpp"
+#include "model.hpp"
 
 // struct Vertex {
 //   glm::vec3 position;
@@ -23,7 +23,8 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   void terminateGL() override;
 
  private:
-  GLuint m_programBunny{};
+  GLuint m_programNormal{};
+  GLuint m_programPhong{};
 
   int m_viewportWidth{};
   int m_viewportHeight{};
@@ -36,6 +37,16 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   float m_dollySpeed{0.0f};
   float m_truckSpeed{0.0f};
   float m_panSpeed{0.0f};
+
+  // Light and material properties
+  glm::vec4 m_lightDir{-1.0f, -1.0f, -1.0f, 0.0f};
+  glm::vec4 m_Ia{1.0f, 1.0f, 1.0f, 1.0f};
+  glm::vec4 m_Id{1.0f, 1.0f, 1.0f, 1.0f};
+  glm::vec4 m_Is{1.0f, 1.0f, 1.0f, 1.0f};
+  glm::vec4 m_Ka{0.1f, 0.1f, 0.1f, 1.0f};
+  glm::vec4 m_Kd{0.7f, 0.7f, 0.7f, 1.0f};
+  glm::vec4 m_Ks{1.0f, 1.0f, 1.0f, 1.0f};
+  float m_shininess{25.0f};
 
   void update();
 };

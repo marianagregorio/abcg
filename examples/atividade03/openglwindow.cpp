@@ -5,6 +5,7 @@
 #include <tiny_obj_loader.h>
 
 #include <cppitertools/itertools.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtx/fast_trigonometry.hpp>
 #include <glm/gtx/hash.hpp>
 #include <unordered_map>
@@ -58,18 +59,21 @@ void OpenGLWindow::initializeGL() {
   glEnable(GL_DEPTH_TEST);
 
   // Create program
-  m_programBunny = createProgramFromFile(getAssetsPath() + "normal.vert",
+  m_programPhong = createProgramFromFile(getAssetsPath() + "phong.vert",
+                                    getAssetsPath() + "phong.frag");
+                                    
+  m_programNormal = createProgramFromFile(getAssetsPath() + "normal.vert",
                                     getAssetsPath() + "normal.frag");
 
   m_model.loadFromFile(getAssetsPath() + "bunny.obj");
-  m_model.setupVAO(m_programBunny);
+  m_model.setupVAO(m_programPhong);
 
 
   m_modelTeapot.loadFromFile(getAssetsPath() + "teapot.obj");
-  m_modelTeapot.setupVAO(m_programBunny);
+  m_modelTeapot.setupVAO(m_programPhong);
 
   m_modelTRex.loadFromFile(getAssetsPath() + "trex.obj");
-  m_modelTRex.setupVAO(m_programBunny);
+  m_modelTRex.setupVAO(m_programPhong);
 
   resizeGL(getWindowSettings().width, getWindowSettings().height);
 }
@@ -82,18 +86,42 @@ void OpenGLWindow::paintGL() {
 
   glViewport(0, 0, m_viewportWidth, m_viewportHeight);
 
-  glUseProgram(m_programBunny);
+  glUseProgram(m_programPhong);
 
   // Get location of uniform variables (could be precomputed)
-  GLint viewMatrixLoc{glGetUniformLocation(m_programBunny, "viewMatrix")};
-  GLint projMatrixLoc{glGetUniformLocation(m_programBunny, "projMatrix")};
-  GLint modelMatrixLoc{glGetUniformLocation(m_programBunny, "modelMatrix")};
-  GLint colorLoc{glGetUniformLocation(m_programBunny, "color")};
+  GLint viewMatrixLoc{glGetUniformLocation(m_programPhong, "viewMatrix")};
+  GLint projMatrixLoc{glGetUniformLocation(m_programPhong, "projMatrix")};
+  GLint modelMatrixLoc{glGetUniformLocation(m_programPhong, "modelMatrix")};
+  GLint colorLoc{glGetUniformLocation(m_programPhong, "color")};
+
+  // Get location of uniform variables
+  // GLint viewMatrixLoc{glGetUniformLocation(m_programPhong, "viewMatrix")};
+  // GLint projMatrixLoc{glGetUniformLocation(m_programPhong, "projMatrix")};
+  // GLint modelMatrixLoc{glGetUniformLocation(m_programPhong, "modelMatrix")};
+  GLint normalMatrixLoc{glGetUniformLocation(m_programPhong, "normalMatrix")};
+  GLint lightDirLoc{glGetUniformLocation(m_programPhong, "lightDirWorldSpace")};
+  GLint shininessLoc{glGetUniformLocation(m_programPhong, "shininess")};
+  GLint IaLoc{glGetUniformLocation(m_programPhong, "Ia")};
+  GLint IdLoc{glGetUniformLocation(m_programPhong, "Id")};
+  GLint IsLoc{glGetUniformLocation(m_programPhong, "Is")};
+  GLint KaLoc{glGetUniformLocation(m_programPhong, "Ka")};
+  GLint KdLoc{glGetUniformLocation(m_programPhong, "Kd")};
+  GLint KsLoc{glGetUniformLocation(m_programPhong, "Ks")};
 
   // Set uniform variables for viewMatrix and projMatrix
   // These matrices are used for every scene object
   glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, &m_camera.m_viewMatrix[0][0]);
   glUniformMatrix4fv(projMatrixLoc, 1, GL_FALSE, &m_camera.m_projMatrix[0][0]);
+
+  auto lightDirRotated{m_lightDir};
+  glUniform4fv(lightDirLoc, 1, &lightDirRotated.x);
+  glUniform1f(shininessLoc, m_shininess);
+  glUniform4fv(IaLoc, 1, &m_Ia.x);
+  glUniform4fv(IdLoc, 1, &m_Id.x);
+  glUniform4fv(IsLoc, 1, &m_Is.x);
+  glUniform4fv(KaLoc, 1, &m_Ka.x);
+  glUniform4fv(KdLoc, 1, &m_Kd.x);
+  glUniform4fv(KsLoc, 1, &m_Ks.x);
 
   // Draw white bunny
   glm::mat4 model{1.0f};
@@ -102,6 +130,10 @@ void OpenGLWindow::paintGL() {
   model = glm::scale(model, glm::vec3(0.5f));
 
   glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
+
+  auto modelViewMatrix{glm::mat3(m_camera.m_viewMatrix * model)};
+  glm::mat3 normalMatrix{glm::inverseTranspose(modelViewMatrix)};
+  glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix[0][0]);
   glUniform4f(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f);
 
   m_model.render(-1);
@@ -135,6 +167,21 @@ void OpenGLWindow::paintGL() {
   glUniform4f(colorLoc, 1.0f, 0.25f, 0.25f, 1.0f);
 
   m_model.render(-1);
+  glUseProgram(0);
+
+  glUseProgram(m_programNormal);
+
+
+  // Get location of uniform variables (could be precomputed)
+  GLint viewMatrixLocNormal{glGetUniformLocation(m_programNormal, "viewMatrix")};
+  GLint projMatrixLocNormal{glGetUniformLocation(m_programNormal, "projMatrix")};
+  GLint modelMatrixLocNormal{glGetUniformLocation(m_programNormal, "modelMatrix")};
+  GLint colorLocNormal{glGetUniformLocation(m_programNormal, "color")};
+
+
+  // These matrices are used for every scene object
+  glUniformMatrix4fv(viewMatrixLocNormal, 1, GL_FALSE, &m_camera.m_viewMatrix[0][0]);
+  glUniformMatrix4fv(projMatrixLocNormal, 1, GL_FALSE, &m_camera.m_projMatrix[0][0]);
 
   // Draw gray Teapot
   model = glm::mat4(1.0);
@@ -142,8 +189,8 @@ void OpenGLWindow::paintGL() {
   // model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0, 1, 0));
   model = glm::scale(model, glm::vec3(0.25f));
 
-  glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
-  glUniform4f(colorLoc, 0.5f, 0.5f, 0.5f, 1.0f);
+  glUniformMatrix4fv(modelMatrixLocNormal, 1, GL_FALSE, &model[0][0]);
+  glUniform4f(colorLocNormal, 0.5f, 0.5f, 0.5f, 1.0f);
   m_modelTeapot.render(-1);
 
   glUseProgram(0);
@@ -169,5 +216,5 @@ void OpenGLWindow::resizeGL(int width, int height) {
 }
 
 void OpenGLWindow::terminateGL() {
-  glDeleteProgram(m_programBunny);
+  glDeleteProgram(m_programPhong);
 }
