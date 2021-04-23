@@ -9,6 +9,8 @@ Aplicação é uma visualização com trackball de diversos modelos 3D - há uma
 ## Código fonte
 Código da atividade está na pasta examples/viewer2
 
+Os modelos 3D utilizados foram retirados do site https://free3d.com/ ou disponibilizados pelo professor no repositório mencionado no fim do README.
+
 ## Compilando
 Para compilar (no linux) rode o comando:
 `` ./build.sh ``
