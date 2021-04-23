@@ -58,8 +58,8 @@ void OpenGLWindow::initializeGL() {
   glEnable(GL_DEPTH_TEST);
 
   // Create program
-  m_programBunny = createProgramFromFile(getAssetsPath() + "lookat.vert",
-                                    getAssetsPath() + "lookat.frag");
+  m_programBunny = createProgramFromFile(getAssetsPath() + "normal.vert",
+                                    getAssetsPath() + "normal.frag");
 
   m_model.loadFromFile(getAssetsPath() + "bunny.obj");
   m_model.setupVAO(m_programBunny);
