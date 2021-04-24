@@ -15,12 +15,14 @@ struct hash<Vertex> {
   size_t operator()(Vertex const& vertex) const noexcept {
     std::size_t h1{std::hash<glm::vec3>()(vertex.position)};
     std::size_t h2{std::hash<glm::vec3>()(vertex.normal)};
-    return h1 ^ h2;
+    std::size_t h3{std::hash<glm::vec2>()(vertex.texCoord)};
+    return h1 ^ h2 ^ h3;
   }
 };
 }  // namespace std
 
 Model::~Model() {
+  glDeleteTextures(1, &m_diffuseTexture);
   glDeleteBuffers(1, &m_EBO);
   glDeleteBuffers(1, &m_VBO);
   glDeleteVertexArrays(1, &m_VAO);
@@ -78,6 +80,13 @@ void Model::createBuffers() {
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
+void Model::loadDiffuseTexture(std::string_view path) {
+  if (!std::filesystem::exists(path)) return;
+
+  glDeleteTextures(1, &m_diffuseTexture);
+  m_diffuseTexture = abcg::opengl::loadTexture(path);
+}
+
 void Model::loadFromFile(std::string_view path, bool standardize) {
   auto basePath{std::filesystem::path{path}.parent_path().string() + "/"};
 
@@ -101,11 +110,13 @@ void Model::loadFromFile(std::string_view path, bool standardize) {
 
   const auto& attrib{reader.GetAttrib()};
   const auto& shapes{reader.GetShapes()};
+  const auto& materials{reader.GetMaterials()};
 
   m_vertices.clear();
   m_indices.clear();
 
   m_hasNormals = false;
+  m_hasTexCoords = false;
 
   // A key:value map with key=Vertex and value=index
   std::unordered_map<Vertex, GLuint> hash{};
@@ -135,9 +146,20 @@ void Model::loadFromFile(std::string_view path, bool standardize) {
         nz = attrib.normals.at(startIndex + 2);
       }
 
+      // Vertex texture coordinates
+      float tu{};
+      float tv{};
+      if (index.texcoord_index >= 0) {
+        m_hasTexCoords = true;
+        startIndex = 2 * index.texcoord_index;
+        tu = attrib.texcoords.at(startIndex + 0);
+        tv = attrib.texcoords.at(startIndex + 1);
+      }
+    
       Vertex vertex{};
       vertex.position = {vx, vy, vz};
       vertex.normal = {nx, ny, nz};
+      vertex.texCoord = {tu, tv};
 
       // If hash doesn't contain this vertex
       if (hash.count(vertex) == 0) {
@@ -149,6 +171,24 @@ void Model::loadFromFile(std::string_view path, bool standardize) {
 
       m_indices.push_back(hash[vertex]);
     }
+  }
+
+  // Use properties of first material, if available
+  if (!materials.empty()) {
+    const auto& mat{materials.at(0)};  // First material
+    m_Ka = glm::vec4(mat.ambient[0], mat.ambient[1], mat.ambient[2], 1);
+    m_Kd = glm::vec4(mat.diffuse[0], mat.diffuse[1], mat.diffuse[2], 1);
+    m_Ks = glm::vec4(mat.specular[0], mat.specular[1], mat.specular[2], 1);
+    m_shininess = mat.shininess;
+
+    if (!mat.diffuse_texname.empty())
+      loadDiffuseTexture(basePath + mat.diffuse_texname);
+  } else {
+    // Default values
+    m_Ka = {0.1f, 0.1f, 0.1f, 1.0f};
+    m_Kd = {0.7f, 0.7f, 0.7f, 1.0f};
+    m_Ks = {1.0f, 1.0f, 1.0f, 1.0f};
+    m_shininess = 25.0f;
   }
 
   if (standardize) {
@@ -164,6 +204,17 @@ void Model::loadFromFile(std::string_view path, bool standardize) {
 
 void Model::render(int numTriangles) const {
   glBindVertexArray(m_VAO);
+
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, m_diffuseTexture);
+
+  // Set minification and magnification parameters
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  // Set texture wrapping parameters
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
   GLsizei numIndices = (numTriangles < 0) ? m_indices.size() : numTriangles * 3;
 
@@ -197,6 +248,14 @@ void Model::setupVAO(GLuint program) {
     glEnableVertexAttribArray(normalAttribute);
     GLsizei offset{sizeof(glm::vec3)};
     glVertexAttribPointer(normalAttribute, 3, GL_FLOAT, GL_FALSE,
+                          sizeof(Vertex), reinterpret_cast<void*>(offset));
+  }
+
+  GLint texCoordAttribute{glGetAttribLocation(program, "inTexCoord")};
+  if (texCoordAttribute >= 0) {
+    glEnableVertexAttribArray(texCoordAttribute);
+    GLsizei offset{sizeof(glm::vec3) + sizeof(glm::vec3)};
+    glVertexAttribPointer(texCoordAttribute, 2, GL_FLOAT, GL_FALSE,
                           sizeof(Vertex), reinterpret_cast<void*>(offset));
   }
 

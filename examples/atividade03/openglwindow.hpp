@@ -5,14 +5,6 @@
 #include "camera.hpp"
 #include "model.hpp"
 
-// struct Vertex {
-//   glm::vec3 position;
-
-//   bool operator==(const Vertex& other) const {
-//     return position == other.position;
-//   }
-// };
-
 class OpenGLWindow : public abcg::OpenGLWindow {
  protected:
   void handleEvent(SDL_Event& ev) override;
@@ -25,6 +17,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
  private:
   GLuint m_programNormal{};
   GLuint m_programPhong{};
+  GLuint m_programTexture{};
 
   int m_viewportWidth{};
   int m_viewportHeight{};
@@ -48,6 +41,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   glm::vec4 m_Ks{1.0f, 1.0f, 1.0f, 1.0f};
   float m_shininess{25.0f};
 
+  void loadModel(std::string_view path);
   void update();
 };
 
