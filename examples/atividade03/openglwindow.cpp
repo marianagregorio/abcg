@@ -61,6 +61,9 @@ void OpenGLWindow::initializeGL() {
   m_modelHeart.loadFromFile(getAssetsPath() + "12190_Heart_v1_L3.obj",
                             m_programTexture);
 
+  m_modelFlyingSaucer.loadFromFile(
+      getAssetsPath() + "11681_Flying_saucer_v1_L3.obj", m_programTexture);
+
   m_modelBunny.loadFromFile(getAssetsPath() + "bunny.obj", m_programPhong);
 
   m_modelTeapot.loadFromFile(getAssetsPath() + "teapot.obj", m_programNormal);
@@ -243,11 +246,45 @@ void OpenGLWindow::paintModelsWithTexture() {
   glUniform4fv(KdLocTexture, 1, &kd.x);
   glUniform4fv(KsLocTexture, 1, &ks.x);
 
-
-
   glUniformMatrix4fv(modelMatrixLocTexture, 1, GL_FALSE, &model[0][0]);
   glUniform4f(colorLoc, 1.0f, 0.5f, 0.0f, 1.0f);
   m_modelTRex.render(-1);
+
+  model = glm::mat4(1.0);
+  model = glm::translate(model, glm::vec3(1.0f, 1.0f, -2.0f));
+  model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1, 0, 0));
+  model = glm::scale(model, glm::vec3(1.0f));
+  glUniformMatrix4fv(modelMatrixLocTexture, 1, GL_FALSE, &model[0][0]);
+
+  glUniformMatrix4fv(viewMatrixLocTexture, 1, GL_FALSE,
+                     &m_camera.m_viewMatrix[0][0]);
+  glUniformMatrix4fv(projMatrixLocTexture, 1, GL_FALSE,
+                     &m_camera.m_projMatrix[0][0]);
+  glUniform1i(diffuseTexLocTexture, 0);
+  glUniform1i(mappingModeLocTexture, 3);  // mesh
+  glUniform4f(colorLoc, 1.0f, 0.25f, 0.25f, 1.0f);
+
+  glUniform4fv(lightDirLocTexture, 1, &m_lightDir.x);
+  glUniform4fv(IaLocTexture, 1, &m_Ia.x);
+  glUniform4fv(IdLocTexture, 1, &m_Id.x);
+  glUniform4fv(IsLocTexture, 1, &m_Is.x);
+
+  modelViewMatrixTexture = glm::mat3(m_camera.m_viewMatrix * model);
+  textureMatrix = glm::inverseTranspose(modelViewMatrixTexture);
+  glUniformMatrix3fv(normalMatrixLocTexture, 1, GL_FALSE, &textureMatrix[0][0]);
+
+  ka = m_modelFlyingSaucer.getKa();
+  kd = m_modelFlyingSaucer.getKd();
+  ks = m_modelFlyingSaucer.getKs();
+
+  glUniform1f(shininessLocTexture, m_modelFlyingSaucer.getShininess());
+  glUniform4fv(KaLocTexture, 1, &ka.x);
+  glUniform4fv(KdLocTexture, 1, &kd.x);
+  glUniform4fv(KsLocTexture, 1, &ks.x);
+
+  glUniformMatrix4fv(modelMatrixLocTexture, 1, GL_FALSE, &model[0][0]);
+  glUniform4f(colorLoc, 1.0f, 0.5f, 0.0f, 1.0f);
+  m_modelFlyingSaucer.render(-1);
 }
 
 void OpenGLWindow::paintNormalModels() {

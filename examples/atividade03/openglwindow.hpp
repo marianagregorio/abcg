@@ -23,6 +23,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   int m_viewportHeight{};
 
   Model m_model;
+  Model m_modelFlyingSaucer;
   Model m_modelHeart;
   Model m_modelBunny;
   Model m_modelTeapot;
