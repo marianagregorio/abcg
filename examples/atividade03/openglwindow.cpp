@@ -64,6 +64,8 @@ void OpenGLWindow::initializeGL() {
   m_modelFlyingSaucer.loadFromFile(
       getAssetsPath() + "11681_Flying_saucer_v1_L3.obj", m_programTexture);
 
+  m_modelTree.loadFromFile(getAssetsPath() + "Tree2.obj", m_programNormal);
+
   m_modelBunny.loadFromFile(getAssetsPath() + "bunny.obj", m_programPhong);
 
   m_modelTeapot.loadFromFile(getAssetsPath() + "teapot.obj", m_programNormal);
@@ -345,6 +347,34 @@ void OpenGLWindow::paintNormalModels() {
   glUniformMatrix4fv(modelMatrixLocNormal, 1, GL_FALSE, &model[0][0]);
   glUniform4f(colorLocNormal, 0.5f, 0.5f, 0.5f, 1.0f);
   m_modelTeapot.render(-1);
+
+  model = glm::mat4(1.0);
+  model = glm::translate(model, glm::vec3(2.0f, 0.0f, -2.0f));
+  model = glm::rotate(model, glm::radians(-210.0f), glm::vec3(0, 1, 0));
+  model = glm::scale(model, glm::vec3(0.6f));
+  glUniformMatrix4fv(modelMatrixLocNormal, 1, GL_FALSE, &model[0][0]);
+  m_modelTree.render(-1);
+
+  model = glm::mat4(1.0);
+  model = glm::translate(model, glm::vec3(-2.0f, 0.0f, -1.0f));
+  model = glm::rotate(model, glm::radians(-180.0f), glm::vec3(0, 1, 0));
+  model = glm::scale(model, glm::vec3(0.9f));
+  glUniformMatrix4fv(modelMatrixLocNormal, 1, GL_FALSE, &model[0][0]);
+  m_modelTree.render(-1);
+
+  model = glm::mat4(1.0);
+  model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.7f));
+  model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0, 1, 0));
+  model = glm::scale(model, glm::vec3(0.6f));
+  glUniformMatrix4fv(modelMatrixLocNormal, 1, GL_FALSE, &model[0][0]);
+  m_modelTree.render(-1);
+
+
+  model = glm::mat4(1.0);
+  model = glm::translate(model, glm::vec3(-1.5f, 0.0f, 2.7f));
+  model = glm::scale(model, glm::vec3(0.6f));
+  glUniformMatrix4fv(modelMatrixLocNormal, 1, GL_FALSE, &model[0][0]);
+  m_modelTree.render(-1);
 }
 
 void OpenGLWindow::paintUI() { abcg::OpenGLWindow::paintUI(); }

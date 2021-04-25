@@ -24,6 +24,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
 
   Model m_model;
   Model m_modelFlyingSaucer;
+  Model m_modelTree;
   Model m_modelHeart;
   Model m_modelBunny;
   Model m_modelTeapot;
