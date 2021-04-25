@@ -87,7 +87,7 @@ void Model::loadDiffuseTexture(std::string_view path) {
   m_diffuseTexture = abcg::opengl::loadTexture(path);
 }
 
-void Model::loadFromFile(std::string_view path, bool standardize) {
+void Model::loadFromFile(std::string_view path, GLuint program, bool standardize) {
   auto basePath{std::filesystem::path{path}.parent_path().string() + "/"};
 
   tinyobj::ObjReaderConfig readerConfig;
@@ -200,6 +200,8 @@ void Model::loadFromFile(std::string_view path, bool standardize) {
   }
 
   createBuffers();
+
+  setupVAO(program);
 }
 
 void Model::render(int numTriangles) const {

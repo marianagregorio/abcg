@@ -23,6 +23,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   int m_viewportHeight{};
 
   Model m_model;
+  Model m_modelBunny;
   Model m_modelTeapot;
   Model m_modelTRex;
 
@@ -42,6 +43,9 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   float m_shininess{25.0f};
 
   void loadModel(std::string_view path);
+  void paintPhongIlluminatedModels();
+  void paintModelsWithTexture();
+  void paintNormalModels();
   void update();
 };
 

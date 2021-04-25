@@ -27,7 +27,7 @@ class Model {
   Model& operator=(Model&&) = default;
 
   void loadDiffuseTexture(std::string_view path);
-  void loadFromFile(std::string_view path, bool standardize = true);
+  void loadFromFile(std::string_view path, GLuint program,  bool standardize = true);
   void render(int numTriangles = -1) const;
   void setupVAO(GLuint program);
 
