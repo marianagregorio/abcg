@@ -117,17 +117,19 @@ void OpenGLWindow::paintPhongIlluminatedModels() {
   glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, &m_camera.m_viewMatrix[0][0]);
   glUniformMatrix4fv(projMatrixLoc, 1, GL_FALSE, &m_camera.m_projMatrix[0][0]);
 
+  glm::vec4 ka{0.1f, 0.1f, 0.1f, 1.0f};
+  glm::vec4 kd{0.0f, 1.0f, 0.0f, 1.0f};
   auto lightDirRotated{m_lightDir};
   glUniform4fv(lightDirLoc, 1, &lightDirRotated.x);
-  glUniform1f(shininessLoc, m_shininess);
+  glUniform1f(shininessLoc, 12.5f);
   glUniform4fv(IaLoc, 1, &m_Ia.x);
   glUniform4fv(IdLoc, 1, &m_Id.x);
   glUniform4fv(IsLoc, 1, &m_Is.x);
-  glUniform4fv(KaLoc, 1, &m_Ka.x);
-  glUniform4fv(KdLoc, 1, &m_Kd.x);
+  glUniform4fv(KaLoc, 1, &ka.x);
+  glUniform4fv(KdLoc, 1, &kd.x);
   glUniform4fv(KsLoc, 1, &m_Ks.x);
 
-  // Draw white bunny
+  // Draw green bunny
   glm::mat4 model{1.0f};
   model = glm::translate(model, glm::vec3(-1.0f, 0.0f, 0.0f));
   model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0, 1, 0));
@@ -138,15 +140,46 @@ void OpenGLWindow::paintPhongIlluminatedModels() {
   auto modelViewMatrix{glm::mat3(m_camera.m_viewMatrix * model)};
   glm::mat3 normalMatrix{glm::inverseTranspose(modelViewMatrix)};
   glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix[0][0]);
-  glUniform4f(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f);
+  glUniform4f(colorLoc, 0.0f, 1.0f, 0.0f, 1.0f);
 
   m_modelBunny.render(-1);
 
-  // Draw extra bunny
+  glUniform1f(shininessLoc, m_shininess);
+  glUniform4fv(KaLoc, 1, &m_Ka.x);
+  glUniform4fv(KdLoc, 1, &m_Kd.x);
+  // Draw white bunny
   model = glm::mat4(1.0);
   model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
   model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0, 1, 0));
   model = glm::scale(model, glm::vec3(0.5f));
+
+  glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
+  glUniform4f(colorLoc, 0.0f, 1.0f, 0.0f, 1.0f);
+  m_modelBunny.render(-1);
+
+  kd = {1.0f, 0.0f, 0.5f, 1.0f};
+  glUniform1f(shininessLoc, m_shininess);
+  glUniform4fv(KdLoc, 1, &kd.x);
+
+  // Draw pink bunny
+  model = glm::mat4(1.0);
+  model = glm::translate(model, glm::vec3(4.0f, 0.0f, 2.0f));
+  model = glm::rotate(model, glm::radians(-120.0f), glm::vec3(0, 1, 0));
+  model = glm::scale(model, glm::vec3(0.6f));
+
+  glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
+  glUniform4f(colorLoc, 0.0f, 1.0f, 0.0f, 1.0f);
+  m_modelBunny.render(-1);
+
+  kd = {1.0f, 0.5f, 0.0f, 1.0f};
+  glUniform1f(shininessLoc, m_shininess);
+  glUniform4fv(KdLoc, 1, &kd.x);
+
+  // Draw orange bunny
+  model = glm::mat4(1.0);
+  model = glm::translate(model, glm::vec3(2.0f, 0.0f, 1.3f));
+  model = glm::rotate(model, glm::radians(-150.0f), glm::vec3(0, 1, 0));
+  model = glm::scale(model, glm::vec3(0.4f));
 
   glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
   glUniform4f(colorLoc, 0.0f, 1.0f, 0.0f, 1.0f);
