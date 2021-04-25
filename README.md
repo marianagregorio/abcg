@@ -1,13 +1,13 @@
-# Atividade 02 de Computação Gráfica
+# Atividade 03 de Computação Gráfica
 ## Desenvolvedora
 Nome: Mariana Gregorio Candido
 RA: 11035514
 
 ## Descrição
-Aplicação é uma visualização com trackball de diversos modelos 3D - há uma lista para selecioná-los e os objetos vão perdendo triângulos com o passar do tempo. Também é possível editar a cor do objeto.
+Aplicação é uma cena com alguns objetos 3D, alguns com textura, alguns com iluminação seguindo o modelo de Phong e alguns coloridos conforme os vetores normais. É possível navegar pela cena usando as setas do teclado e as teclas q, w, e, a, s, d.
 
 ## Código fonte
-Código da atividade está na pasta examples/viewer2
+Código da atividade está na pasta examples/atividade03
 
 Os modelos 3D utilizados foram retirados do site https://free3d.com/ ou disponibilizados pelo professor no repositório mencionado no fim do README.
 
@@ -16,7 +16,7 @@ Para compilar (no linux) rode o comando:
 `` ./build.sh ``
 
 E para rodar o projeto compilado:
-`` ./build/bin/viewer2/viewer2 ``
+`` ./build/bin/atividade03/atividade03 ``
 
 Para gerar página em web assembly:
 `` ./build-wasm.sh ``

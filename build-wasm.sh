@@ -19,10 +19,10 @@ else
 fi
 cmake --build . --config $BUILD_TYPE -- -j $NUM_PROCESSORS
 
-rm "viewer2.data"
-rm "viewer2.js"
-rm "viewer2.wasm"
+rm "atividade03.data"
+rm "atividade03.js"
+rm "atividade03.wasm"
 
-cp "public/viewer2.data" .
-cp "public/viewer2.js" .
-cp "public/viewer2.wasm" .
+cp "public/atividade03.data" .
+cp "public/atividade03.js" .
+cp "public/atividade03.wasm" .
