@@ -28,4 +28,4 @@
 # add_subdirectory(viewer7)
 
 #-------------------------------------ATIVIDADE 03 ----------------------------------------------------------------
-add_subdirectory(atividade03)
+add_subdirectory(tea-party)

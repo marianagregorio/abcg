@@ -16,7 +16,7 @@ Para compilar (no linux) rode o comando:
 `` ./build.sh ``
 
 E para rodar o projeto compilado:
-`` ./build/bin/atividade03/atividade03 ``
+`` ./build/bin/tea-party/tea-party ``
 
 Para gerar página em web assembly:
 `` ./build-wasm.sh ``
