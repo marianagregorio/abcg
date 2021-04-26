@@ -77,6 +77,7 @@ void OpenGLWindow::initializeGL() {
 }
 
 void OpenGLWindow::paintGL() {
+  glClearColor(m_camera.m_at.r * 0.3, m_camera.m_at.g * 0.3, m_camera.m_at.b * 0.3, 1);
   update();
 
   // Clear color buffer and depth buffer
@@ -370,7 +371,6 @@ void OpenGLWindow::paintNormalModels() {
   glUniformMatrix4fv(modelMatrixLocNormal, 1, GL_FALSE, &model[0][0]);
   m_modelTree.render(-1);
 
-
   model = glm::mat4(1.0);
   model = glm::translate(model, glm::vec3(-1.5f, 0.0f, 2.7f));
   model = glm::scale(model, glm::vec3(0.6f));
@@ -378,7 +378,21 @@ void OpenGLWindow::paintNormalModels() {
   m_modelTree.render(-1);
 }
 
-void OpenGLWindow::paintUI() { abcg::OpenGLWindow::paintUI(); }
+void OpenGLWindow::paintUI() {
+  abcg::OpenGLWindow::paintUI();
+  {
+    ImGui::SetNextWindowPos(ImVec2(m_viewportWidth - 280, 0));
+    ImGui::SetNextWindowSize(ImVec2(280, 85));
+    auto windowFlags{ImGuiWindowFlags_NoBackground |
+                     ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoInputs};
+    ImGui::Begin("score", nullptr, windowFlags);
+
+    ImGui::Text("Movimente a câmera com as setas");
+    ImGui::Text("e com as teclas q, w, e, a, s, d");
+
+    ImGui::End();
+  }
+}
 
 void OpenGLWindow::update() {
   float deltaTime{static_cast<float>(getDeltaTime())};

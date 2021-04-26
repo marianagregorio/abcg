@@ -7,7 +7,7 @@ RA: 11035514
 Aplicação é uma cena com alguns objetos 3D, alguns com textura, alguns com iluminação seguindo o modelo de Phong e alguns coloridos conforme os vetores normais. É possível navegar pela cena usando as setas do teclado e as teclas q, w, e, a, s, d.
 
 ## Código fonte
-Código da atividade está na pasta examples/atividade03
+Código da atividade está na pasta examples/tea-party
 
 Os modelos 3D utilizados foram retirados do site https://free3d.com/ ou disponibilizados pelo professor no repositório mencionado no fim do README.
 
